@@ -1,0 +1,267 @@
+Observation (delete the Pods one by one (first voting Pod, then worker pod, then db pod) and see what happens to the voting and result app after deleting):
+-- Deleted the voting pod: voting pod auto created by deployment. voting and result app were working.
+-- Deleted the worker pod: wworker pod auto created. voting and result app were working.
+-- Deleted the db pod: voting pod auto created. voting and result app were reachable but data is not showing in result app. Also it was observed that worker pod restarted after db was restarted. 
+result pod was restarted. voting and result app started working.
+
+3. your comment on WHY result app STOPPED working after db pod stop
+DB pod data mount path was not available in worker node after db restart.
+result pod was restarted. voting and result app started working.
+
+
+
+
+
+
+
+
+
+*********************************************************************
+
+
+1. Commands that you used during the assignment. 2. snapshot of logs (wherever possible)
+[root@ip-172-31-17-3 k8s-specifications]# history
+  120  pwd
+  121  kubectl get po
+  122  git clone https://github.com/ashishrpandey/example-voting-app
+  123  ls
+  124  cd example-voting-app
+  126  ll
+  127  cd k8s-specifications/
+  128  ll
+  129  kubectl apply -f .
+  130  kubectl get po
+  133  kubectl get all
+  137  kubectl delete po -n vote-94849dc97-q69s4
+  138  kubectl get po -A
+  139  kubectl delete po -n default       vote-94849dc97-q69s4
+  144  kubectl get po -A
+  145  kubectl delete po -n default       worker-dd46d7584-lwf9l
+  148  kubectl get po -A
+  149  kubectl delete po -n default       db-b54cd94f4-z54hq
+  150  kubectl get po
+  157  kubectl describe po worker-dd46d7584-lfj5g
+  158  kubectl get po
+  159  ll
+  160  kubectl get all
+  161  kubectl get po -A
+  162  kubectl get po -n default       worker-dd46d7584-lfj5g
+  163  kubectl delete po -n default       worker-dd46d7584-lfj5g
+  168  kubectl get po -A
+  169  kubectl get po -n default       vote-94849dc97-xm2x6
+  170  kubectl delete po -n default       vote-94849dc97-xm2x6
+  171  kubectl get po -A
+  172  ll
+  173  cat db-deployment.yaml
+  174  cd /var/lib/postgresql/data
+  175  cd /var/lib/postgresql/
+  176  cat db-service.yaml
+  177  ll
+  178  cat redis-deployment.yaml
+  179  cat result-deployment.yaml
+  180  ll
+  181  cat vote-deployment.yaml
+  182  cat worker-deployment.yaml
+  183  kubectl get po
+  184  kubectl get po -owide
+  185  ssh 172.31.17.195
+  186  ll
+  187  cat db-deployment.yaml
+  188  kubectl mount --help
+  189  history
+[root@ip-172-31-17-3 k8s-specifications]#
+
+
+Result Logs snapshots:
+[root@ip-172-31-17-3 ~]# pwd
+/root
+[root@ip-172-31-17-3 ~]#
+[root@ip-172-31-17-3 ~]# kubectl get po
+No resources found in default namespace.
+[root@ip-172-31-17-3 ~]#
+[root@ip-172-31-17-3 ~]# git clone https://github.com/ashishrpandey/example-voting-app
+Cloning into 'example-voting-app'...
+remote: Enumerating objects: 494, done.
+remote: Total 494 (delta 0), reused 0 (delta 0), pack-reused 494
+Receiving objects: 100% (494/494), 236.17 KiB | 1.02 MiB/s, done.
+Resolving deltas: 100% (179/179), done.
+[root@ip-172-31-17-3 ~]# ls
+example-voting-app  kubernetes-training
+[root@ip-172-31-17-3 ~]#
+[root@ip-172-31-17-3 ~]# cd example-voting-app
+[root@ip-172-31-17-3 example-voting-app]# lll
+bash: lll: command not found
+[root@ip-172-31-17-3 example-voting-app]# ll
+total 96
+-rw-r--r-- 1 root root 54824 Aug  1 10:14 architecture.png
+-rw-r--r-- 1 root root   609 Aug  1 10:14 dockercloud.yml
+-rw-r--r-- 1 root root   808 Aug  1 10:14 docker-compose-javaworker.yml
+-rw-r--r-- 1 root root   400 Aug  1 10:14 docker-compose-simple.yml
+-rw-r--r-- 1 root root   808 Aug  1 10:14 docker-compose.yml
+-rw-r--r-- 1 root root  1692 Aug  1 10:14 docker-stack.yml
+drwxr-xr-x 2 root root   250 Aug  1 10:14 k8s-specifications
+-rw-r--r-- 1 root root 10758 Aug  1 10:14 LICENSE
+-rw-r--r-- 1 root root   185 Aug  1 10:14 MAINTAINERS
+-rw-r--r-- 1 root root  2182 Aug  1 10:14 README.md
+drwxr-xr-x 5 root root   133 Aug  1 10:14 result
+drwxr-xr-x 4 root root    93 Aug  1 10:14 vote
+drwxr-xr-x 3 root root    70 Aug  1 10:14 worker
+[root@ip-172-31-17-3 example-voting-app]#
+[root@ip-172-31-17-3 example-voting-app]#
+[root@ip-172-31-17-3 example-voting-app]# cd k8s-specifications/
+[root@ip-172-31-17-3 k8s-specifications]# ll
+total 36
+-rw-r--r-- 1 root root 401 Aug  1 10:14 db-deployment.yaml
+-rw-r--r-- 1 root root 146 Aug  1 10:14 db-service.yaml
+-rw-r--r-- 1 root root 402 Aug  1 10:14 redis-deployment.yaml
+-rw-r--r-- 1 root root 152 Aug  1 10:14 redis-service.yaml
+-rw-r--r-- 1 root root 299 Aug  1 10:14 result-deployment.yaml
+-rw-r--r-- 1 root root 195 Aug  1 10:14 result-service.yaml
+-rw-r--r-- 1 root root 289 Aug  1 10:14 vote-deployment.yaml
+-rw-r--r-- 1 root root 192 Aug  1 10:14 vote-service.yaml
+-rw-r--r-- 1 root root 292 Aug  1 10:14 worker-deployment.yaml
+[root@ip-172-31-17-3 k8s-specifications]# kubectl apply -f .
+deployment.apps/db created
+service/db created
+deployment.apps/redis created
+service/redis created
+deployment.apps/result created
+service/result created
+deployment.apps/vote created
+service/vote created
+deployment.apps/worker created
+[root@ip-172-31-17-3 k8s-specifications]#
+[root@ip-172-31-17-3 k8s-specifications]#
+[root@ip-172-31-17-3 k8s-specifications]# kubectl get po
+NAME                      READY   STATUS              RESTARTS   AGE
+db-b54cd94f4-z54hq        0/1     ContainerCreating   0          8s
+redis-868d64d78-ppkpc     0/1     ContainerCreating   0          8s
+result-5d57b59f4b-g46ss   0/1     ContainerCreating   0          7s
+vote-94849dc97-q69s4      0/1     ContainerCreating   0          7s
+worker-dd46d7584-lwf9l    0/1     ContainerCreating   0          7s
+[root@ip-172-31-17-3 k8s-specifications]
+[root@ip-172-31-17-3 k8s-specifications]# kubectl get all
+NAME                          READY   STATUS              RESTARTS   AGE
+pod/db-b54cd94f4-z54hq        1/1     Running             0          19s
+pod/redis-868d64d78-ppkpc     0/1     ContainerCreating   0          19s
+pod/result-5d57b59f4b-g46ss   0/1     ContainerCreating   0          18s
+pod/vote-94849dc97-q69s4      0/1     ContainerCreating   0          18s
+pod/worker-dd46d7584-lwf9l    0/1     ContainerCreating   0          18s
+
+NAME                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+service/db           ClusterIP   10.102.110.97   <none>        5432/TCP         19s
+service/kubernetes   ClusterIP   10.96.0.1       <none>        443/TCP          75m
+service/redis        ClusterIP   10.99.29.215    <none>        6379/TCP         18s
+service/result       NodePort    10.108.12.218   <none>        5001:31001/TCP   18s
+service/vote         NodePort    10.99.31.102    <none>        5000:31000/TCP   18s
+
+NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/db       1/1     1            1           19s
+deployment.apps/redis    0/1     1            0           19s
+deployment.apps/result   0/1     1            0           18s
+deployment.apps/vote     0/1     1            0           18s
+deployment.apps/worker   0/1     1            0           18s
+
+NAME                                DESIRED   CURRENT   READY   AGE
+replicaset.apps/db-b54cd94f4        1         1         1       19s
+replicaset.apps/redis-868d64d78     1         1         0       19s
+replicaset.apps/result-5d57b59f4b   1         1         0       18s
+replicaset.apps/vote-94849dc97      1         1         0       18s
+replicaset.apps/worker-dd46d7584    1         1         0       18s
+[root@ip-172-31-17-3 k8s-specifications]#
+[root@ip-172-31-17-3 k8s-specifications]#
+[root@ip-172-31-17-3 k8s-specifications]# kubectl get po
+NAME                      READY   STATUS    RESTARTS   AGE
+db-b54cd94f4-z54hq        1/1     Running   0          4m13s
+redis-868d64d78-ppkpc     1/1     Running   0          4m13s
+result-5d57b59f4b-g46ss   1/1     Running   0          4m12s
+vote-94849dc97-q69s4      1/1     Running   0          4m12s
+worker-dd46d7584-lwf9l    1/1     Running   0          4m12s
+[root@ip-172-31-17-3 k8s-specifications]#
+[root@ip-172-31-17-3 k8s-specifications]#
+[root@ip-172-31-17-3 k8s-specifications]#
+[root@ip-172-31-17-3 k8s-specifications]#
+[root@ip-172-31-17-3 k8s-specifications]#
+[root@ip-172-31-17-3 k8s-specifications]# kubectl get po -A
+NAMESPACE     NAME                                                                     READY   STATUS    RESTARTS   AGE
+default       db-b54cd94f4-z54hq                                                       1/1     Running   0          15m
+default       redis-868d64d78-ppkpc                                                    1/1     Running   0          15m
+default       result-5d57b59f4b-g46ss                                                  1/1     Running   0          15m
+default       vote-94849dc97-q69s4                                                     1/1     Running   0          15m
+default       worker-dd46d7584-lwf9l                                                   1/1     Running   0          15m
+kube-system   calico-etcd-c8vrt                                                        1/1     Running   0          4d22h
+kube-system   calico-kube-controllers-7997dc8d7b-dkmvr                                 1/1     Running   1          4d22h
+kube-system   calico-node-9hpwp                                                        2/2     Running   2          4d22h
+kube-system   calico-node-9stkj                                                        2/2     Running   2          4d22h
+kube-system   coredns-66bff467f8-mwhfm                                                 1/1     Running   0          4d22h
+kube-system   coredns-66bff467f8-xpjbz                                                 1/1     Running   0          4d22h
+kube-system   etcd-ip-172-31-17-3.ap-southeast-1.compute.internal                      1/1     Running   0          4d22h
+kube-system   kube-apiserver-ip-172-31-17-3.ap-southeast-1.compute.internal            1/1     Running   0          4d22h
+kube-system   kube-controller-manager-ip-172-31-17-3.ap-southeast-1.compute.internal   1/1     Running   0          4d22h
+kube-system   kube-proxy-kncs5                                                         1/1     Running   0          4d22h
+kube-system   kube-proxy-xrsbs                                                         1/1     Running   0          4d22h
+kube-system   kube-scheduler-ip-172-31-17-3.ap-southeast-1.compute.internal            1/1     Running   0          4d22h
+[root@ip-172-31-17-3 k8s-specifications]#
+[root@ip-172-31-17-3 k8s-specifications]#
+[root@ip-172-31-17-3 k8s-specifications]# kubectl delete po -n default       vote-94849dc97-q69s4
+pod "vote-94849dc97-q69s4" deleted
+[root@ip-172-31-17-3 k8s-specifications]# kubectl get po
+NAME                      READY   STATUS    RESTARTS   AGE
+db-b54cd94f4-z54hq        1/1     Running   0          16m
+redis-868d64d78-ppkpc     1/1     Running   0          16m
+result-5d57b59f4b-g46ss   1/1     Running   0          16m
+vote-94849dc97-xm2x6      1/1     Running   0          9s
+worker-dd46d7584-lwf9l    1/1     Running   0          16m
+[root@ip-172-31-17-3 k8s-specifications]#
+[root@ip-172-31-17-3 k8s-specifications]# kubectl get po -A
+NAMESPACE     NAME                                                                     READY   STATUS    RESTARTS   AGE
+default       db-b54cd94f4-z54hq                                                       1/1     Running   0          19m
+default       redis-868d64d78-ppkpc                                                    1/1     Running   0          19m
+default       result-5d57b59f4b-g46ss                                                  1/1     Running   0          19m
+default       vote-94849dc97-xm2x6                                                     1/1     Running   0          3m44s
+default       worker-dd46d7584-lfj5g                                                   1/1     Running   0          44s
+kube-system   calico-etcd-c8vrt                                                        1/1     Running   0          4d22h
+kube-system   calico-kube-controllers-7997dc8d7b-dkmvr                                 1/1     Running   1          4d22h
+kube-system   calico-node-9hpwp                                                        2/2     Running   2          4d22h
+kube-system   calico-node-9stkj                                                        2/2     Running   2          4d22h
+kube-system   coredns-66bff467f8-mwhfm                                                 1/1     Running   0          4d23h
+kube-system   coredns-66bff467f8-xpjbz                                                 1/1     Running   0          4d23h
+kube-system   etcd-ip-172-31-17-3.ap-southeast-1.compute.internal                      1/1     Running   0          4d23h
+kube-system   kube-apiserver-ip-172-31-17-3.ap-southeast-1.compute.internal            1/1     Running   0          4d23h
+kube-system   kube-controller-manager-ip-172-31-17-3.ap-southeast-1.compute.internal   1/1     Running   0          4d23h
+kube-system   kube-proxy-kncs5                                                         1/1     Running   0          4d22h
+kube-system   kube-proxy-xrsbs                                                         1/1     Running   0          4d23h
+kube-system   kube-scheduler-ip-172-31-17-3.ap-southeast-1.compute.internal            1/1     Running   0          4d23h
+[root@ip-172-31-17-3 k8s-specifications]#
+[root@ip-172-31-17-3 k8s-specifications]#
+[root@ip-172-31-17-3 k8s-specifications]# kubectl delete po -n default       db-b54cd94f4-z54hq
+pod "db-b54cd94f4-z54hq" deleted
+^C
+[root@ip-172-31-17-3 k8s-specifications]# kubectl get po
+NAME                      READY   STATUS        RESTARTS   AGE
+db-b54cd94f4-z54hq        1/1     Terminating   0          22m
+db-b54cd94f4-zxkd7        1/1     Running       0          26s
+redis-868d64d78-ppkpc     1/1     Running       0          22m
+result-5d57b59f4b-g46ss   1/1     Running       0          22m
+vote-94849dc97-xm2x6      1/1     Running       0          6m37s
+worker-dd46d7584-lfj5g    1/1     Running       0          3m37s
+[root@ip-172-31-17-3 k8s-specifications]# kubectl get po
+NAME                      READY   STATUS        RESTARTS   AGE
+db-b54cd94f4-z54hq        1/1     Terminating   0          22m
+db-b54cd94f4-zxkd7        1/1     Running       0          30s
+redis-868d64d78-ppkpc     1/1     Running       0          22m
+result-5d57b59f4b-g46ss   1/1     Running       0          22m
+vote-94849dc97-xm2x6      1/1     Running       0          6m41s
+worker-dd46d7584-lfj5g    1/1     Running       0          3m41s
+[root@ip-172-31-17-3 k8s-specifications]#
+[root@ip-172-31-17-3 k8s-specifications]# kubectl get po
+NAME                      READY   STATUS        RESTARTS   AGE
+db-b54cd94f4-z54hq        0/1     Terminating   0          22m
+db-b54cd94f4-zxkd7        1/1     Running       0          36s
+redis-868d64d78-ppkpc     1/1     Running       0          22m
+result-5d57b59f4b-g46ss   1/1     Running       0          22m
+vote-94849dc97-xm2x6      1/1     Running       0          6m47s
+worker-dd46d7584-lfj5g    1/1     Running       1          3m47s
+[root@ip-172-31-17-3 k8s-specifications]#
+[root@ip-172-31-17-3 k8s-specifications]#
+
